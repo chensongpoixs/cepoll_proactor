@@ -1,0 +1,28 @@
+PROJECT(cepoll_proactor)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+MESSAGE(STATUS "#########################")
+SET(CMAKE_BUILD_TYPE Release)
+ADD_DEFINITIONS(-std=c++11 -g -Wall )
+
+INCLUDE_DIRECTORIES(
+${PROJECT_SOURCE_DIR}
+${PROJECT_SOURCE_DIR}/epoll/net
+${PROJECT_SOURCE_DIR}/epoll/util
+)
+#SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/ )
+
+
+#LINK_DIRECTORIES(
+#${PROJECT_SOURCE_DIR}/cepoll_proactor
+#)
+file(GLOB ALL_CXX_SRCS
+        ./*.cpp
+        )
+		
+#add_executable(${PROJECT_NAME} ${ALL_CXX_SRCS} )
+set(ALL_LIB  
+		pthread
+        )
+
+ADD_LIBRARY(${PROJECT_NAME} STATIC ${ALL_CXX_SRCS} )
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${ALL_LIB})

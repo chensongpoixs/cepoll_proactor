@@ -15,9 +15,9 @@
 namespace chen {
 
 template <typename operation>
-class cop_queue;
+class cqueue;
 
-class cop_queue_access
+class cqueue_access
 {
 public:
   template <typename Operation>
@@ -39,37 +39,37 @@ public:
   }
 
   template <typename Operation>
-  static Operation*& front(cop_queue<Operation>& q)
+  static Operation*& front(cqueue<Operation>& q)
   {
     return q.front_;
   }
 
   template <typename Operation>
-  static Operation*& back(cop_queue<Operation>& q)
+  static Operation*& back(cqueue<Operation>& q)
   {
     return q.back_;
   }
 };
 
 template <typename Operation>
-class cop_queue
+class cqueue
   : private cnoncopyable
 {
 public:
   // Constructor.
-  cop_queue()
+  cqueue()
     : front_(0),
       back_(0)
   {
   }
 
   // Destructor destroys all operations.
-  ~cop_queue()
+  ~cqueue()
   {
     while (Operation* op = front_)
     {
       pop();
-      cop_queue_access::destroy(op);
+      cqueue_access::destroy(op);
     }
   }
 
@@ -85,22 +85,22 @@ public:
     if (front_)
     {
       Operation* tmp = front_;
-      front_ = cop_queue_access::next(front_);
+      front_ = cqueue_access::next(front_);
       if (front_ == 0)
 	  {
 		   back_ = 0;
 	  }
-      cop_queue_access::next(tmp, static_cast<Operation*>(0));
+      cqueue_access::next(tmp, static_cast<Operation*>(0));
     }
   }
 
   // Push an operation on to the back of the queue.
   void push(Operation* h)
   {
-    cop_queue_access::next(h, static_cast<Operation*>(0)); 
+    cqueue_access::next(h, static_cast<Operation*>(0)); 
     if (back_)
     {
-      cop_queue_access::next(back_, h);
+      cqueue_access::next(back_, h);
       back_ = h;
     }
     else
@@ -112,21 +112,21 @@ public:
   // Push all operations from another queue on to the back of the queue. The
   // source queue may contain operations of a derived type.
   template <typename OtherOperation>
-  void push(cop_queue<OtherOperation>& q)
+  void push(cqueue<OtherOperation>& q)
   {
-    if (Operation* other_front = cop_queue_access::front(q))
+    if (Operation* other_front = cqueue_access::front(q))
     {
       if (back_)
 	  {
-		   cop_queue_access::next(back_, other_front);
+		   cqueue_access::next(back_, other_front);
 	  }
       else
 	  {
 		   front_ = other_front;
 	  }
-      back_ = cop_queue_access::back(q);
-      cop_queue_access::front(q) = 0;
-      cop_queue_access::back(q) = 0;
+      back_ = cqueue_access::back(q);
+      cqueue_access::front(q) = 0;
+      cqueue_access::back(q) = 0;
     }
   }
 
@@ -137,7 +137,7 @@ public:
   }
 
 private:
-  friend class cop_queue_access;
+  friend class cqueue_access;
 
   // The front of the queue.
   Operation* front_;

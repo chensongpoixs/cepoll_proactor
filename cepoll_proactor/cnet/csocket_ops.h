@@ -20,7 +20,7 @@ namespace chen {
 		 // accpet 
 		 socket_type accept(socket_type sockfd, struct sockaddr *addr, socklen_t *addrlen);
 		 // listen queue 并发量
-		 int32 listen(socket_type sockfd, int32 backlog = 20000);
+		 int32 listen(socket_type sockfd, int32 backlog = 1000);
 		 // async send
 		 int64 async_send(socket_type sockfd, const void *buf, int64 len, int32 flags);
 		 

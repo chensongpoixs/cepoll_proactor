@@ -40,9 +40,14 @@ namespace chen
 		void Destroy();
 		
 	public:
-		void shutdown();
-		int32 register_descriptor(socket_type descriptor, cdescriptor_state_queue *& descriptor_state);
-		void deregister_descriptor(socket_type descriptor, cdescriptor_state_queue *& descriptor_state, bool closing = false);
+		
+		int64 select(uint32 csleep);
+		void * get_ptr(int64 index) {return m_active[i].ptr;}
+		bool 	descriptor_read_state(int64 index) {return m_active[i].event | EPOLLIN;}
+		//void shutdown();
+		int32 register_descriptor(socket_type descriptor, cnet_session *& session);
+		void deregister_descriptor(socket_type descriptor);
+		socket_type		get_event_descriptor(int32 index) {return m_active[index].data.fd;}
 	private:
 		enum { epoll_size = 20000 };
 		 // Create the epoll file descriptor. Throws an exception if the descriptor
@@ -59,17 +64,17 @@ namespace chen
 		socket_type m_epoll_fd_;
 		
 		// Mutex to protect access to internal data.
-		std::mutex m_mutex_;
-
+		//std::mutex m_mutex_;
+		std::vector<epoll_event*> 			m_active;
 		// The timer file descriptor.
 		//socket_type m_timer_fd_;
 		// Mutex to protect access to the registered descriptors.
-		std::mutex m_registered_descriptors_mutex_;
+	//	std::mutex m_registered_descriptors_mutex_;
 
   // Keep track of all registered descriptors.
 		//cobject_pool<cdescriptor_state_queue> m_registered_descriptors_;
 		 // Whether the service has been shut down.
-		bool 		m_shutdown_;
+		bool 		m_stoped;
 	}
 } // chen
 

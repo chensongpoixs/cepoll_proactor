@@ -18,7 +18,9 @@ namespace chen  {
 		explicit cnet_session():m_sockfd(0), m_event(0) {}
 		virtual ~cnet_session() {}
 	public:
-		bool 	init(socket_type  sockfd, int32 event);
+		bool 	init(socket_type  sockfd);
+		void    set_event(int32 event);
+		csocket_type get_sockfd() {return m_sockfd};
 		void 	destroy();
 	private:
 		socket_type		m_sockfd;

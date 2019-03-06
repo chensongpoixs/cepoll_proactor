@@ -12,7 +12,7 @@ namespace chen  {
 	
 	
 	
-	bool 	cnet_session::init(socket_type	sockfd, int32 event)
+	bool 	cnet_session::init(socket_type	sockfd)
 	{
 		if (sockfd <= 0)
 		{
@@ -20,15 +20,15 @@ namespace chen  {
 			return false;
 		}
 		
-		if (m_sockfd == 0 )
+		/*if (m_sockfd == 0 )
 		{
 			std::cout << "[" << FUNCTION << "][" << __LINE__ << "][Warn]" <<  " sockfd =  " << m_sockfd << std::endl;
-		}
+		}*/
 		
 		{
 			cscoped_lock<std::mutex> lock;
 			m_sockfd = sockfd;
-			m_event = event;
+			//m_event = event;
 		}
 		
 		return true;

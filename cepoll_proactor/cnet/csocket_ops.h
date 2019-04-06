@@ -7,7 +7,7 @@
 ************************************************************************************************/
 #ifndef _C_SOCKET_OPS_H_
 #define _C_SOCKET_OPS_H_
-#include "cnet_type.h"
+#include "cnet_types.h"
 namespace chen {
 	
 	namespace csocket_ops {
@@ -27,9 +27,11 @@ namespace chen {
 		 // async recv
 		 int64 async_recv(socket_type sockfd, void *buf, int64 len, int32 flags);
 		 
-		 
+		 /***设套接字为非阻塞模式***/
 		 bool set_nonblocking(socket_type sockfd, bool on = true);
-		 
+
+		 int32 getsocketopt(socket_type sockfd, int32 level, int32 optname, void* optval, int64 optlen);
+		 //int result = ::getsockopt(s, level, optname, (char*)optval, &tmp_optlen);
 		 int32 shutdown(socket_type sockfd, int32 how);
 	}  // csocket_ops
 }  // chen 

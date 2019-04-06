@@ -9,7 +9,7 @@
 
 #ifndef _C_LOG_H_
 #define _C_LOG_H_
-#include "cnet_type.h"
+#include "cnet_types.h"
 #include <cstdio>
 #include <cstdlib>
 namespace chen {

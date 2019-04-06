@@ -8,11 +8,17 @@
 #ifndef _C_NET_MGR_H_
 #define _C_NET_MGR_H_
 #include "cnoncopyable.h"
-#include "cnet_type.h"
+#include "creactor.h"
+#include "cnet_types.h"
 #include "cacceptor.h"
+#include <iostream>
+#include <vector>
+#include "cnet_session.h"
+#include <atomic>
+#include "cqueue.h"
 namespace chen {
 	
-	struct cmsg_data
+	typedef struct cmsg_data
 	{
 			uint32 	m_client;
 			uint32 	m_msg_id;
@@ -49,7 +55,7 @@ namespace chen {
 		void set_disconnect_callback(cdisconnect_cb callback) { m_disconnect_callback = callback; }
 
 		//消息回调
-		void set_msg_callback(wmsg_cb callback) { m_msg_callback = callback; }
+		void set_msg_callback(cmsg_cb callback) { m_msg_callback = callback; }
 	public:
 		void 		process_msg();
 		bool 		send_msg(uint32 sessionId, const void* msg_ptr, uint32 msg_size);
@@ -60,7 +66,7 @@ namespace chen {
 		
 	private: 	
 		cacceptor*					m_acceptor_ptr;		// 监听socket
-		cepoll_reactor*				m_reactor; 
+		creactor*					m_reactor;
 		// callback			
 		cconnect_cb					m_connect_callback;
 		cdisconnect_cb				m_disconnect_callback;

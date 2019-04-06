@@ -13,6 +13,8 @@
 #if defined(_MSC_VER)
 
 	// win 
+#   include <windows.h>
+//#include <WinSock2.h>
 # include <winsock2.h>
 # include <ws2tcpip.h>
 #   pragma comment(lib, "ws2.lib")
@@ -73,11 +75,11 @@ namespace chen
 
 #if defined(_MSC_VER)
 #define FUNCTION __FUNCTION__
-
+	typedef SOCKET socket_type;
 #elif defined(__GNUC__)
 #define FUNCTION __PRETTY_FUNCTION__
 
-typedef int socket_type;
+	typedef int socket_type;
 
 #else
 #pragma error "unknow platform!!!"

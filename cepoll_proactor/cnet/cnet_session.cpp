@@ -6,8 +6,8 @@
 	purpose:		net_session
 ************************************************************************************************/
 #include "cnet_session.h"
-
-
+#include "clog.h"
+#include "cscoped_ptr.h"
 namespace chen  {
 	
 	
@@ -16,7 +16,7 @@ namespace chen  {
 	{
 		if (sockfd <= 0)
 		{
-			std::cout << "[" << FUNCTION << "][" << __LINE__ << "][Warn]" <<  " sockfd <= 0 " << std::endl;
+			WARNING_EX_LOG(" sockfd <= 0\n ");
 			return false;
 		}
 		
@@ -26,12 +26,15 @@ namespace chen  {
 		}*/
 		
 		{
-			cscoped_lock<std::mutex> lock;
+			cscoped_ptr<std::mutex> lock;
 			m_sockfd = sockfd;
 			//m_event = event;
 		}
 		
 		return true;
+	}
+	void cnet_session::set_event(int32 event)
+	{
 	}
 	void 	cnet_session::destroy()
 	{

@@ -9,21 +9,22 @@
 #define _C_ACCEPTOR_H_
 #include "cnoncopyable.h"
 #include "csocket_ops.h"
-
+#include "cnet_types.h"
 namespace chen {
 	class cacceptor : public cnoncopyable
 	{
 	public:
-		explicit cacceptor() ,m_port(0){}
+		explicit cacceptor():m_sockfd(-1), m_ip (NULL),m_port(0){}
 		virtual ~cacceptor() {}
-		bool 	init(const char * ip, uint32& port);
+		bool 	init(const char * ip, uint32 port);
 		void 	destroy();
 	public: 
 		// IPv4
 		bool			create(); 
+		bool		    async_connect();
 		//bool 			open();
 		bool 			bind();
-		socket_type 	accpet();
+		socket_type 	accept();
 		// 并发数
 		bool 			listen();
 		socket_type& 	get_sockfd();

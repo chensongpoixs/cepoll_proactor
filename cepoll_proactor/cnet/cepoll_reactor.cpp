@@ -12,6 +12,9 @@
 #include "cobject_pool.h"
 #include "cscoped_lock.h"
 //#include ""
+#include "clog.h"
+
+#if defined(__GNUC__)
 
 namespace chen 
 {
@@ -117,3 +120,5 @@ namespace chen
 	
 	
 } // chen
+
+#endif /// linux epoll

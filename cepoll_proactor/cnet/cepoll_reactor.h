@@ -24,8 +24,14 @@
 #ifndef _C_EPOLL_REACTOR_H_
 #define _C_EPOLL_REACTOR_H_
 #include "cnoncopyable.h"
-#include "cnet_type.h"
+#include "cnet_types.h"
+#include <vector>
 
+
+
+#if defined(__GNUC__)
+#include <sys/epoll.h>
+# include <sys/timerfd.h>
 namespace chen 
 {
 	
@@ -36,7 +42,7 @@ namespace chen
 	    explicit	cepoll_reactor() {}
 		virtual ~cepoll_reactor() {}
 		
-		bool init();
+		bool init(socket_type sockfd);
 		void Destroy();
 		
 	public:
@@ -75,7 +81,8 @@ namespace chen
 		//cobject_pool<cdescriptor_state_queue> m_registered_descriptors_;
 		 // Whether the service has been shut down.
 		bool 		m_stoped;
-	}
+	};
 } // chen
+#endif
 
 #endif // _C_EPOLL_REACTOR_H_

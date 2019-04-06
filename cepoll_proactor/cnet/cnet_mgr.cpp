@@ -6,7 +6,7 @@
 	purpose:		net_mgr
 ************************************************************************************************/
 #include "cnet_mgr.h"
-
+#include "clog.h"
 
 namespace chen {
 	
@@ -66,7 +66,7 @@ namespace chen {
 			
 			
 			// active
-			m_reactor 	= new cepoll_reactor;
+			m_reactor 	= new creactor;
 			if (!m_reactor)
 			{
 				ERROR_EX_LOG("create alloc fail \n");
@@ -83,7 +83,7 @@ namespace chen {
 			
 			return true;
 		}
-		bool 		cnet_mgr::send_msg(uint32 sessionId, uint16 msg_id, const void* msg_ptr, uint32 msg_size)
+		bool 		cnet_mgr::send_msg(uint32 sessionId, const void* msg_ptr, uint32 msg_size)
 		{
 				return false;
 		}
@@ -101,7 +101,7 @@ namespace chen {
 				delete m_reactor;
 			}
 			
-			for (std::thread &thread : m_pthread)
+			for (std::thread &thread : m_threads)
 			{
 				if (thread.joinable())
 				{
@@ -120,7 +120,7 @@ namespace chen {
 				m_msgs.pop();
 				if (msg_ptr->m_msg_id == EMIR_Connect)
 				{
-					wmsg_connect* p = (wmsg_connect*)msg_ptr->get_buf();
+					cmsg_connect* p = (cmsg_connect*)msg_ptr->get_buf();
 					m_connect_callback(msg_ptr->get_session_id(), p->para, p->buf);
 				}
 				else if (msg_ptr->m_msg_id == EMIR_Disconnect)
@@ -130,7 +130,7 @@ namespace chen {
 				else
 				{
 					m_msg_callback(msg_ptr->m_client, msg_ptr->m_msg_id
-						, msg_ptr->ptr, msg_ptr->m_size);
+						, msg_ptr->m_ptr, msg_ptr->m_size);
 				}
 				
 				delete msg_ptr;
@@ -144,7 +144,7 @@ namespace chen {
 		}
 		void 		cnet_mgr::_work_thread()
 		{
-			while (!m_stoped)
+			while (!m_shuting)
 			{
 				// write read queue
 				int64 num_event = m_reactor->select(m_acceptor_ptr->get_sockfd());
@@ -157,7 +157,7 @@ namespace chen {
 					}
 					if (m_acceptor_ptr->get_sockfd() == get_event_descriptor(num_event)) // new client accept
 					{
-						csocket_type fd = m_acceptor_ptr->accept();
+						socket_type fd = m_acceptor_ptr->accept();
 						cnet_session * session 	= new cnet_session;
 						if (!session)
 						{
@@ -171,7 +171,7 @@ namespace chen {
 							delete session;
 							continue;
 						}
-						session->set_sockfd(fd);
+						session->init(fd);
 						if (!m_reactor->register_descriptor(fd, session))
 						{
 							ERROR_EX_LOG(" add descriptor fail \n");

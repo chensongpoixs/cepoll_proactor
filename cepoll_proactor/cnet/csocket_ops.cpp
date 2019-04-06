@@ -34,37 +34,62 @@ namespace chen {
 		
 		int64 async_send(socket_type sockfd, const void *buf, int64 len, int32 flags)
 		{
-			return ::send(sockfd, buf, len, flags);
+			return ::send(sockfd,(const char *) buf, len, flags);
 		}
 		 
 		 // async recv
 		 int64 async_recv(socket_type sockfd, void *buf, int64 len, int32 flags)
 		 {
-			 return ::recv(sockfd, buf, len, flags);
+			 return ::recv(sockfd,(char *) buf, len, flags);
 		 }
 		 
 		 
 		 bool set_nonblocking(socket_type sockfd, bool on = true)
 		 {
-			int32 flags = ::fcntl( sockfd , F_GETFL , 0 );
-			if(flags == -1)
-			{
-				return false;
-			}
 
-			if ( on )
-			{   // //非阻塞事件
-				flags |= O_NONBLOCK;
-			}
-			else
-			{
-				flags &= ~O_NONBLOCK;
-			}
-			if(-1 == ::fcntl( sockfd , F_SETFL , flags ))
-			{
-				return false;
-			}
-			return true;
+			 /***设套接字为非阻塞模式***/ 
+#if defined(_MSC_VER)
+			 unsigned long ul = 1;
+			 int	flags = ::ioctlsocket(sockfd, FIONBIO, &ul); //设置套接字非阻塞模式
+			 if (flags == -1)
+			 {
+				 return false;
+			 }
+
+#elif defined(__GNUC__)
+
+			 int32 flags = ::fcntl(sockfd, F_GETFL, 0);
+			 if (flags == -1)
+			 {
+				 return false;
+			 }
+
+			 if (on)
+			 {   // //非阻塞事件
+				 flags |= O_NONBLOCK;
+			 }
+			 else
+			 {
+				 flags &= ~O_NONBLOCK;
+			 }
+			 if (-1 == ::fcntl(sockfd, F_SETFL, flags))
+			 {
+				 return false;
+			 }
+			
+#else
+#pragma error "unknow platform!!!"
+
+#endif
+			
+			 return true;
+		 }
+
+		 int32 getsocketopt(socket_type sockfd, int32 level, int32 optname, void * optval, int64 optlen)
+		 {
+			 
+			 int result = ::getsockopt(sockfd, level, optname, (char*)optval, (int *)&optlen);
+			 return result;
 		 }
 		 
 		 int32 shutdown(socket_type sockfd, int32 how)

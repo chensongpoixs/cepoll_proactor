@@ -63,7 +63,8 @@ namespace chen {
 		void 		close(uint32 sessionId);
 	private:
 		void 		_work_thread();
-		
+		void		_clearup_session(cnet_session * psession);
+		void		_new_connect();
 	private: 	
 		cacceptor*					m_acceptor_ptr;		// 监听socket
 		creactor*					m_reactor;

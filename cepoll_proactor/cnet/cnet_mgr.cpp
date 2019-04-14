@@ -73,7 +73,7 @@ namespace chen {
 				destroy();
 				return false;
 			}
-			if (!m_reactor->init(m_acceptor_ptr->get_sockfd()))
+			if (!m_reactor->init(2000))
 			{
 				destroy();
 				return false;
@@ -97,7 +97,7 @@ namespace chen {
 			}
 			if (m_reactor)
 			{
-				m_reactor->shutdown();
+			//	m_reactor->shutdown();
 				delete m_reactor;
 			}
 			
@@ -147,89 +147,107 @@ namespace chen {
 			while (!m_shuting)
 			{
 				// write read queue
-				int64 num_event = m_reactor->select(m_acceptor_ptr->get_sockfd());
+				int64 num_event = m_reactor->select(200);
 				for (int64 i = 0; i < num_event; ++i)
 				{
-					cmsg_data * msg = new cmsg_data;
-					if (!msg)
+					cnet_session * session = static_cast<cnet_session*>(m_reactor->get_para(i));
+					
+					if (!session)
 					{
-						ERROR_EX_LOG("alloc msg_data fail\n");
+						if (m_reactor->is_exception(i))
+						{
+							ERROR_EX_LOG("listen socket has exception\n");
+							continue;
+						}
+						if (m_reactor->is_read(i))
+						{
+							// new client
+							_new_connect();
+						}
+						continue;
 					}
-					if (m_acceptor_ptr->get_sockfd() == get_event_descriptor(num_event)) // new client accept
+
+					if (!session->is_open())
 					{
-						socket_type fd = m_acceptor_ptr->accept();
-						cnet_session * session 	= new cnet_session;
-						if (!session)
-						{
-							ERROR_EX_LOG("alloc accept new session \n");
-							continue;
-						}
-						// nonblock
-						if (!csocket_ops::set_nonblocking(fd))
-						{
-							ERROR_EX_LOG(" accept new session set nonblocking\n");
-							delete session;
-							continue;
-						}
-						session->init(fd);
-						if (!m_reactor->register_descriptor(fd, session))
-						{
-							ERROR_EX_LOG(" add descriptor fail \n");
-							delete session;
-							continue;
-						}
-						msg_ptr->m_client = session->sockfd();
-						msg_ptr->m_ptr = buf;
-						msg_ptr->msg_id = EMIR_Connect;
-						m_msgs<cmsg_data>.push(msg);
-						
+						continue;
 					}
-					else 
+
+					if (m_reactor->is_read(i))
 					{
-						cnet_session *session = static_cast<cnet_session*>m_reactor->get_ptr(num_event);
-						if (!session)
+						//if (!session->ProcessInputs())
 						{
-							WARNING_EX_LOG("session == null\b");
+							_clearup_session(session);
 							continue;
-						}
-						//判断是否有client发送信息
-						if (m_reactor->descriptor_read_state(num_event))
-						{
-							char * buf = new char[2048];
-							int64 ret = csocket_ops::sync_read(session->get_sockfd(), buf, 2048);
-							if (ret < 0) 
-							{
-								perror("Read error ");
-								m_reactor->deregister_descriptor(session->get_sockfd());
-								close(session->get_sockfd());
-								
-								delete[] buf;
-								msg_ptr->m_msg_id = EMIR_Disconnect;
-							}
-							else if (ret == 0) 
-							{
-								ERROR_EX_LOG("client 退出\n");
-								m_reactor->deregister_descriptor(session->get_sockfd());
-								close(session->get_sockfd());
-								
-								msg_ptr->m_msg_id = EMIR_Disconnect
-							}
-							else 
-							{
-								
-								msg_ptr->m_client = session->sockfd();
-								msg_ptr->m_ptr = buf;
-								msg_ptr->m_msg_id = 3;
-								msg_ptr->m_size = ret;
-								m_msgs<cmsg_data>.push(msg);
-							}
-							msg_ptr->m_client = session->sockfd();
-							m_msgs<cmsg_data>.push(msg);
 						}
 					}
+
+					if (m_reactor->is_exception(i))
+					{
+						ERROR_EX_LOG("pSession %u has exception, disconnected\n", session->get_sockfd());
+						_clearup_session(session);
+						continue;
+					}
+
+					if (m_reactor->is_write(i))
+					{
+						//if (!session->ProcessOutputs())
+						{
+							_clearup_session(session);
+						}
+						continue;
+					}
+
 				}
 			}
 		}
-}// chen
+		void cnet_mgr::_clearup_session(cnet_session * psession)
+		{
+			m_reactor->deregister_descriptor(psession->get_sockfd());
+			uint32 session = psession->get_sockfd();
+			psession->clearup();
+			// disconnect
+			//m_msgs.push();
+		}
+		void cnet_mgr::_new_connect()
+		{
+			sockaddr_in sock_addr;
+			int err_code;
+			while (true)
+			{
+				socket_type	tmpsocket;
+
+				memset(&sock_addr, 0, sizeof(sock_addr));
+				sock_addr.sin_family = AF_INET;
+				//-- accept socket
+				if (!m_acceptor_ptr->accept(tmpsocket, sock_addr, err_code))
+				{
+					if (err_code == WSAEWOULDBLOCK)
+					{
+						break;
+					}
+					else
+					{
+						continue;
+					}
+				}
+
+				if (!csocket_ops::set_nonblocking(tmpsocket))
+				{
+					continue;
+				}
+				cnet_session *psession = new cnet_session;
+				if (!psession)
+				{
+					return;
+				}
+				m_reactor->register_readwrite_descriptor(tmpsocket, psession);
+
+				uint32 port = ntohs(sock_addr.sin_port);
+				uint32 ip = (uint32)(sock_addr.sin_addr.s_addr);
+				// connect
+				//m_msgs.push();
+			}
+		}
+}// namespce chen
 
 

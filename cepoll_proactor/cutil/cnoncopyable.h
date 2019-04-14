@@ -20,9 +20,9 @@ namespace chen
 		cnoncopyable() {}
 		~cnoncopyable() {}
 	private:
-		cnoncopyable(cnoncopyable&&);
+		//cnoncopyable(cnoncopyable&&);
 		cnoncopyable(const cnoncopyable&);
-		cnoncopyable &operator =(cnoncopyable &&);
+		//cnoncopyable &operator =(cnoncopyable &&);
 		cnoncopyable& operator=(const cnoncopyable&);
 	};
 

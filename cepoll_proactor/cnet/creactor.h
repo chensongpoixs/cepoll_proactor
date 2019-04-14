@@ -8,7 +8,7 @@
 #ifndef _C_REACTOR_H_
 #define _C_REACTOR_H_
 #if defined(_MSC_VER)
-#include "cselect_proactor.h"
+#include "cselect_reactor.h"
 #elif defined(__GNUC__)
 #include "cepoll_reactor.h"
 
@@ -19,7 +19,7 @@
 
 namespace chen {
 #if defined(_MSC_VER)
-	typedef cselect_proactor		creactor;
+	typedef cselect_reactor		creactor;
 #elif defined(__GNUC__)
 	typedef cepoll_reactor			creactor;
 #else
@@ -28,4 +28,4 @@ namespace chen {
 #endif
 } // namespace chen
 
-#endif // _C_REACTOR_H_
+#endif // !_C_REACTOR_H_

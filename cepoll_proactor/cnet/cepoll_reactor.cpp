@@ -59,11 +59,11 @@ namespace chen
 		*/
 	}
 	
-	int64 select(uint32 csleep)
+	uint32 cepoll_reactor::select(uint32 ms)
 	{
 		epoll_event events[128];
 		m_active.clear();
-		int64 num_events = epoll_wait(epoll_fd_, events, 128, csleep);
+		int64 num_events = epoll_wait(epoll_fd_, events, 128, ms);
 		for (int64 i = 0; i < num_events; ++i)
 		{
 			m_active.emplace_back(&events[i]);  // core addr 
@@ -119,6 +119,6 @@ namespace chen
 	
 	
 	
-} // chen
+} //namespace chen
 
 #endif /// linux epoll

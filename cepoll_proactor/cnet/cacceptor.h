@@ -24,7 +24,7 @@ namespace chen {
 		bool		    async_connect();
 		//bool 			open();
 		bool 			bind();
-		socket_type 	accept();
+		bool		 	accept(socket_type& socket, struct sockaddr_in& sock_addr, int32& err_code);
 		// 并发数
 		bool 			listen();
 		socket_type& 	get_sockfd();
@@ -35,6 +35,6 @@ namespace chen {
 		std::string 	m_ip;		// ip
 		uint32			m_port;    // port
 	};
-}// chen
+}// namespace chen
 
 #endif // _C_ACCEPTOR_H_

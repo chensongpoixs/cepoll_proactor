@@ -84,6 +84,7 @@ namespace chen {
 		}
 		return true;
 	}
+	
 	bool 	cacceptor::listen()
 	{
 		if (csocket_ops::listen(m_sockfd) == -1)
@@ -97,13 +98,19 @@ namespace chen {
 	{
 		return m_sockfd;
 	}
-	socket_type 	cacceptor::accept()
+	
+	bool 	cacceptor::accept(socket_type& socket, struct sockaddr_in& sock_addr, int32& err_code)
 	{
+
+		uint32 addrlen = sizeof(sock_addr);
+		socket = csocket_ops::accept(m_sockfd, (struct sockaddr *)(&(sock_addr)),(socklen_t*) &addrlen, err_code);
+		if (socket == INVALID_SOCKET)
+			return false;
 		return true;
 	}
 	
 	void 	cacceptor::shutdown()
 	{
-		shutdown(m_sockfd, 0);
+		//shutdown(m_sockfd, 0);
 	}
-} // chen
+} // namespace chen

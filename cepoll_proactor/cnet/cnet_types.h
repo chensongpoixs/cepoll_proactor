@@ -71,11 +71,29 @@ namespace chen
 namespace chen
 {
 
-
+	enum CSOCKET_TYPE 
+	{
+		E_NONE		= 0x00,     /* No events registered. */
+		E_READFDS	= 0x01, /* Fire when descriptor is readable. */
+		E_WRITFDS	= 0x02,  /* Fire when descriptor is writable. */
+		E_EXCEFDS	= 0x04
+	};
 
 #if defined(_MSC_VER)
 #define FUNCTION __FUNCTION__
 	typedef SOCKET socket_type;
+
+//	typedef union epoll_data {
+//		void    *ptr;
+//		int      fd;
+//		uint32_t u32;
+//		uint64_t u64;
+//} epoll_data_t;
+//
+//	struct epoll_event {
+//		uint32_t     events;    // Epoll events 
+//		epoll_data_t data;      // User data variable 
+//	};
 #elif defined(__GNUC__)
 #define FUNCTION __PRETTY_FUNCTION__
 
@@ -86,6 +104,6 @@ namespace chen
 
 #endif
 	
-}  // chen
+}  //namespace chen
 
-#endif // _C_NET_TYPES_H_
+#endif // !_C_NET_TYPES_H_

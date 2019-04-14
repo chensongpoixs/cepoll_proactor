@@ -47,7 +47,7 @@ namespace chen
 		
 	public:
 		
-		int64 select(uint32 csleep);
+		uint32 select(uint32 ms);
 		void * get_ptr(int64 index) {return m_active[i].ptr;}
 		bool 	descriptor_read_state(int64 index) {return m_active[i].event | EPOLLIN;}
 		//void shutdown();

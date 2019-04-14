@@ -7,7 +7,7 @@
 ************************************************************************************************/
 
 #include "csocket_ops.h"
-
+#include "cnet_types.h"
 
 namespace chen {
 	namespace csocket_ops {
@@ -21,12 +21,22 @@ namespace chen {
 		{
 			return ::bind(s, addr, addrlen);
 		}
-		
-		socket_type accept(socket_type sockfd, struct sockaddr *addr, socklen_t *addrlen)
+		// socket_type accept(socket_type sockfd, struct sockaddr *addr, socklen_t *addrlen, int32 &error_code);
+		socket_type accept(socket_type sockfd, struct sockaddr *addr, socklen_t *addrlen, int32 &error_code)
 		{
-			return ::accept(sockfd, addr, addrlen);
+			socket_type tmep = ::accept(sockfd, addr, addrlen);
+#if defined(_MSC_VER)
+
+			error_code = WSAGetLastError();
+			if (error_code == WSAEWOULDBLOCK)
+			{
+			}
+#endif // #if defined(_MSC_VER)			
+			
+			return tmep;
 		}
-		
+	
+
 		int32 listen(socket_type sockfd, int32 backlog = 20000)
 		{
 			return ::listen(sockfd, backlog);
@@ -43,6 +53,10 @@ namespace chen {
 			 return ::recv(sockfd,(char *) buf, len, flags);
 		 }
 		 
+		 uint32 select(uint32 maxfd, fd_set* read, fd_set *write, fd_set *exce, const struct timeval* time_out)
+		 {
+			 return ::select(maxfd, read, write, exce, time_out);
+		 }
 		 
 		 bool set_nonblocking(socket_type sockfd, bool on = true)
 		 {
@@ -82,6 +96,31 @@ namespace chen {
 
 #endif
 			
+			 return true;
+		 }
+
+		 bool close_socket(socket_type sockfd)
+		 {
+#if defined(_MSC_VER)
+
+			 if (::closesocket(sockfd) == SOCKET_ERROR)
+			 {
+				 //int32 iErr = WSAGetLastError() ;
+				 return false;
+			 }
+
+#elif defined(__GNUC__)
+
+			 if (::close(sockfd) < 0)
+			 {
+				 //errno
+				return false;
+			}
+#else
+
+#pragma error "unknow platform!!!"
+
+#endif
 			 return true;
 		 }
 

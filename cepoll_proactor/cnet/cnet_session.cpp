@@ -33,6 +33,18 @@ namespace chen  {
 		
 		return true;
 	}
+	void cnet_session::clearup()
+	{
+		m_status = ESS_INIT;
+		if ((m_sockfd & 0XFFFF0000) == 0XFFFF0000)
+		{
+			m_sockfd += 0X00020000;
+		}
+		else
+		{
+			m_sockfd += 0X00010000;
+		}
+	}
 	void cnet_session::set_event(int32 event)
 	{
 	}

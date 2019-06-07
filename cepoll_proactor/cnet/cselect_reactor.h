@@ -3,7 +3,7 @@
 
 		author:			chensong
 
-		purpose:		cselect_reactor
+		purpose:		select_reactor
 ************************************************************************************************/
 
 
@@ -16,7 +16,7 @@
 #include <vector>
 #if defined(_MSC_VER)
 namespace chen {
-	class cselect_reactor :public cnoncopyable
+	class cselect_reactor /*:private cnoncopyable*/
 	{
 	private:
 		struct csocket_exter_para
@@ -39,9 +39,10 @@ namespace chen {
 	public:
 		explicit cselect_reactor() {}
 		~cselect_reactor() {}
-
 	public:
-		bool init(uint32 maxfd);
+		
+	public:
+		bool init(socket_type listenfds,uint32 active_num);
 		void destroy();
 	public:
 		void * get_para(uint32 index);
@@ -52,18 +53,22 @@ namespace chen {
 		
 	public:
 		// register
-		void	register_read_descriptor(socket_type descriptor, void* para) { _register_descriptor(descriptor, E_READFDS, para); }
-		void	register_write_descriptor(socket_type descriptor, void* para) { _register_descriptor(descriptor, E_WRITFDS, para); }
-		void	register_readwrite_descriptor(socket_type descriptor, void* para) { _register_descriptor(descriptor, E_READFDS | E_WRITFDS, para); }
-
-		void deregister_descriptor(socket_type descriptor);
+		void	register_read_descriptor(socket_type& descriptor, void* para) { _register_descriptor(descriptor, E_READFDS, para); }
+		void	register_write_descriptor(socket_type& descriptor, void* para) { _register_descriptor(descriptor, E_WRITFDS, para); }
+		void	register_readwrite_descriptor(socket_type& descriptor, void* para) { _register_descriptor(descriptor, E_READFDS | E_WRITFDS, para); }
+		// remove file
+		void deregister_descriptor(socket_type& descriptor);
 		/*void shutdown();*/
 	public:
-		uint32 select(uint32 ms);
+		int32 select(uint32 ms);
 	private:
-		int32 _register_descriptor(socket_type descriptor, uint32 st, void * session);
+		int32 _register_descriptor(socket_type& descriptor, uint32 st, void * session);
 	private:
-		uint32 						m_maxfd;
+		cselect_reactor(const cselect_reactor&);
+		//cnoncopyable &operator =(cnoncopyable &&);
+		cselect_reactor& operator=(const cselect_reactor&);
+	private:
+		socket_type 				m_maxfd;
 		uint32						m_curfd_count;
 		uint32						m_maxfd_count;
 		fd_set						m_readfds; // read
@@ -75,4 +80,4 @@ namespace chen {
 
 } // namespace chen
 #endif // #if defined(_MSC_VER)
-#endif //_C_SELECT_REACTOR_H_
+#endif //!#define _C_SELECT_REACTOR_H_

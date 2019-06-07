@@ -1,3 +1,10 @@
+/***********************************************************************************************
+				created: 		2019-03-01
+
+				author:			chensong
+
+				purpose:		net_types
+************************************************************************************************/
 #ifndef _C_NET_TYPES_H_
 #define _C_NET_TYPES_H_
 #include <cctype>
@@ -6,7 +13,7 @@
 #include <cstring>
 #include <cerrno>
 #include <new>
-#include <codecvt>
+//#include <codecvt>
 #include <locale>
 #include <string>
 
@@ -14,10 +21,10 @@
 
 	// win 
 #   include <windows.h>
-//#include <WinSock2.h>
+#include <WinSock2.h>
 # include <winsock2.h>
 # include <ws2tcpip.h>
-#   pragma comment(lib, "ws2.lib")
+//#   pragma comment(lib, "ws2.lib")
 #   pragma comment(lib, "ws2_32.lib")
 #    pragma comment(lib, "mswsock.lib")
 
@@ -38,6 +45,7 @@
 # include <netdb.h>
 # include <net/if.h>
 # include <limits.h>
+#include <unistd.h>
 #else
 #pragma error "unknow platform!!!"
 
@@ -83,22 +91,12 @@ namespace chen
 #define FUNCTION __FUNCTION__
 	typedef SOCKET socket_type;
 
-//	typedef union epoll_data {
-//		void    *ptr;
-//		int      fd;
-//		uint32_t u32;
-//		uint64_t u64;
-//} epoll_data_t;
-//
-//	struct epoll_event {
-//		uint32_t     events;    // Epoll events 
-//		epoll_data_t data;      // User data variable 
-//	};
 #elif defined(__GNUC__)
 #define FUNCTION __PRETTY_FUNCTION__
 
 	typedef int socket_type;
-
+	#define  INVALID_SOCKET  (-1)
+	#define		SOCKET_ERROR		(-1)
 #else
 #pragma error "unknow platform!!!"
 

@@ -3,7 +3,7 @@
 	
 	author:			chensong
 					
-	purpose:		net_session
+	purpose:		net_types
 ************************************************************************************************/
 #include "cnet_types.h"
 

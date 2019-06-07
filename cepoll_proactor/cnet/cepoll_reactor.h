@@ -39,50 +39,49 @@ namespace chen
 	class cepoll_reactor :public cnoncopyable 
 	{
 	public:
-	    explicit	cepoll_reactor() {}
+	    explicit	cepoll_reactor(): m_epoll_fd_(-1), m_curfd_count(0), m_maxfd_count(0), m_active(NULL), m_stoped(false){}
 		virtual ~cepoll_reactor() {}
 		
-		bool init(socket_type sockfd);
-		void Destroy();
+		bool init(socket_type listenfds, uint32 active_num);
+		void destroy();
 		
 	public:
 		
-		uint32 select(uint32 ms);
-		void * get_ptr(int64 index) {return m_active[i].ptr;}
-		bool 	descriptor_read_state(int64 index) {return m_active[i].event | EPOLLIN;}
-		//void shutdown();
-		int32 register_descriptor(socket_type descriptor, cnet_session *& session);
-		void deregister_descriptor(socket_type descriptor);
-		socket_type		get_event_descriptor(int32 index) {return m_active[index].data.fd;}
+		int32 select(uint32 ms);
+	public:
+
+		void * get_para(int64 index) {return m_active[index].data.ptr;}
+
+	public:
+		bool	is_read(uint32 index) const;
+		bool	is_write(uint32 index)const;
+		bool	is_exception(uint32 index) const;
+	public:
+
+		/*	bool 	descriptor_read_state(int64 index) {return m_active[index].event | EPOLLIN;}
+
+			int32 register_descriptor(socket_type descriptor, cnet_session *& session);
+			void deregister_descriptor(socket_type descriptor);
+			socket_type		get_event_descriptor(int32 index) {return m_active[index].data->fd;}*/
+			// register
+		void	register_read_descriptor(socket_type& descriptor, void* para) { _register_descriptor(descriptor, EPOLLIN, para); }
+		void	register_write_descriptor(socket_type &descriptor, void* para) { _register_descriptor(descriptor, EPOLLOUT, para); }
+		void	register_readwrite_descriptor(socket_type& descriptor, void* para) { _register_descriptor(descriptor, EPOLLIN | EPOLLOUT, para); }
+
+		void deregister_descriptor(socket_type &descriptor);
 	private:
-		enum { epoll_size = 20000 };
-		 // Create the epoll file descriptor. Throws an exception if the descriptor
-		// cannot be created.
-		static socket_type _do_epoll_create();
-		
-		// Create the timerfd file descriptor. Does not throw.
-		//static int32 do_timerfd_create();
-	
-		//cdescriptor_state_queue* _allocate_descriptor_state()
-	
+		int32 _register_descriptor(socket_type &descriptor, uint32 st, void * session);
 	private:
 		// The epoll file descriptor.
-		socket_type m_epoll_fd_;
+		socket_type					m_epoll_fd_;
+//		socket_type 				m_maxfd;
+		uint32						m_curfd_count;
+		uint32						m_maxfd_count;
+		epoll_event* 				m_active;
+		bool 						m_stoped;
 		
-		// Mutex to protect access to internal data.
-		//std::mutex m_mutex_;
-		std::vector<epoll_event*> 			m_active;
-		// The timer file descriptor.
-		//socket_type m_timer_fd_;
-		// Mutex to protect access to the registered descriptors.
-	//	std::mutex m_registered_descriptors_mutex_;
-
-  // Keep track of all registered descriptors.
-		//cobject_pool<cdescriptor_state_queue> m_registered_descriptors_;
-		 // Whether the service has been shut down.
-		bool 		m_stoped;
 	};
-} // chen
-#endif
+} // namespace chen
+#endif //!#if defined(__GNUC__)
 
-#endif // _C_EPOLL_REACTOR_H_
+#endif // !#define _C_EPOLL_REACTOR_H_
